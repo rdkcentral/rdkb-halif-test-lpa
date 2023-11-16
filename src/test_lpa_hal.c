@@ -310,7 +310,7 @@ void test_l1_lpa_hal_positive1_cellular_esim_get_profile_info(void)
             }
             else
             {
-                UT_LOG("cellular_esim_get_profile_info of iccid value is %s which is a valid value", profile_list->iccid);
+                UT_LOG("cellular_esim_get_profile_info of iccid value is %s which is a invalid value", profile_list->iccid);
                 UT_FAIL("cellular_esim_get_profile_info profile_list of iccid value  validation failed");
             }
             if(!strcmp(profile_list->profileName, "Xfinity Mobile") || !strcmp(profile_list->profileName ,"Comcast") || !strcmp(profile_list->profileName, "CRTC"))
@@ -320,7 +320,7 @@ void test_l1_lpa_hal_positive1_cellular_esim_get_profile_info(void)
             }
             else
             {
-                UT_LOG("cellular_esim_get_profile_info profileName value is %s which is a valid value", profile_list->profileName);
+                UT_LOG("cellular_esim_get_profile_info profileName value is %s which is a invalid value", profile_list->profileName);
                 UT_FAIL("cellular_esim_get_profile_info profile_list of profileName value  validation failed");
             }
             if((profile_list->profileState == 00) || (profile_list->profileState == 01))
@@ -330,7 +330,7 @@ void test_l1_lpa_hal_positive1_cellular_esim_get_profile_info(void)
             }
             else
             {
-                UT_LOG("cellular_esim_get_profile_info profileState value is %s which is a valid value", profile_list->profileState);
+                UT_LOG("cellular_esim_get_profile_info profileState value is %s which is a invalid value", profile_list->profileState);
                 UT_FAIL("cellular_esim_get_profile_info profile_list of profileState value  validation failed");
             }
             if((nb_profiles <=2 ) || (nb_profiles == 147) || (nb_profiles == 483) || (nb_profiles == 647))
@@ -340,7 +340,7 @@ void test_l1_lpa_hal_positive1_cellular_esim_get_profile_info(void)
             }
             else
             {
-                UT_LOG("cellular_esim_get_profile_info nb_profiles value is %d which is a valid value", nb_profiles);
+                UT_LOG("cellular_esim_get_profile_info nb_profiles value is %d which is a invalid value", nb_profiles);
                 UT_FAIL("cellular_esim_get_profile_info nb_profiles of profileState value  validation failed");
             }
         }
@@ -350,7 +350,7 @@ void test_l1_lpa_hal_positive1_cellular_esim_get_profile_info(void)
 	    }
     
         free(profile_list);
-        profile_list=NULL;
+        //profile_list=NULL;
     }
     else
     {
@@ -425,7 +425,7 @@ if(profile_list != NULL)
     UT_LOG("cellular_esim_get_profile_info Return result: %d", result);
     UT_ASSERT_EQUAL(result, RETURN_ERROR);
     free(profile_list);
-    profile_list=NULL;
+    //profile_list=NULL;
 }
 else
 {
@@ -457,7 +457,7 @@ void test_l1_lpa_hal_positive1_cellular_esim_enable_profile( void )
 {
     UT_LOG("Entering test_l1_lpa_hal_positive1_cellular_esim_enable_profile...");
     char *iccid = "98410800004860024951";
-    int iccid_size = 10;
+    int iccid_size =0;
     int ret_value = 0;
     UT_LOG("Invoking cellular_esim_enable_profile with valid iccid and iccid_size.");
     ret_value = cellular_esim_enable_profile(iccid, iccid_size);
@@ -499,7 +499,7 @@ void test_l1_lpa_hal_positive2_cellular_esim_enable_profile( void )
 {
     UT_LOG("Entering test_l1_lpa_hal_positive2_cellular_esim_enable_profile...");
     char *iccid = "98109909002143658739";
-    int iccid_size = 10;
+    int iccid_size = 0;
     int ret_value = 0;
     UT_LOG("Invoking cellular_esim_enable_profile with valid iccid and iccid_size.");
     ret_value = cellular_esim_enable_profile(iccid, iccid_size);
@@ -540,7 +540,7 @@ void test_l1_lpa_hal_positive3_cellular_esim_enable_profile( void )
 {
     UT_LOG("Entering test_l1_lpa_hal_positive3_cellular_esim_enable_profile...");
     char *iccid = "98414102915071000054";
-    int iccid_size = 10;
+    int iccid_size = 0;
     int ret_value = 0;
     UT_LOG("Invoking cellular_esim_enable_profile with valid iccid and iccid_size.");
     ret_value = cellular_esim_enable_profile(iccid, iccid_size);
@@ -583,7 +583,7 @@ void test_l1_lpa_hal_negative1_cellular_esim_enable_profile( void )
 {
     UT_LOG("Entering test_l1_lpa_hal_negative1_cellular_esim_enable_profile...");
     char *iccid = NULL;
-    int iccid_size = 10;
+    int iccid_size = 0;
     int ret_value = 0;
     UT_LOG("Invoking cellular_esim_enable_profile with NULL iccid and iccid_size = 10. ");
     ret_value = cellular_esim_enable_profile(iccid, iccid_size);
@@ -614,9 +614,9 @@ void test_l1_lpa_hal_negative2_cellular_esim_enable_profile( void )
 {
     UT_LOG("Entering test_l1_lpa_hal_negative2_cellular_esim_enable_profile...");
     char *iccid = "98414102915071@#0054";
-    int iccid_size = 10;
+    int iccid_size = 0;
     int ret_value = 0;
-    UT_LOG("Invoking cellular_esim_enable_profile with alphanumeric value iccid_size = 10 ");
+    UT_LOG("Invoking cellular_esim_enable_profile with alphanumeric value");
     ret_value = cellular_esim_enable_profile(iccid, iccid_size);
     UT_LOG("cellular_esim_enable_profile Return ret_value: %d", ret_value);
     UT_ASSERT_EQUAL(ret_value, RETURN_ERROR);
@@ -644,9 +644,9 @@ void test_l1_lpa_hal_negative3_cellular_esim_enable_profile( void )
 {
     UT_LOG("Entering test_l1_lpa_hal_negative3_cellular_esim_enable_profile...");
     char *iccid = "";
-    int iccid_size = 10;
+    int iccid_size = 0;
     int ret_value = 0;
-    UT_LOG("Invoking cellular_esim_enable_profile with Empty string and iccid_size = 10 ");
+    UT_LOG("Invoking cellular_esim_enable_profile with Empty string ");
     ret_value = cellular_esim_enable_profile(iccid, iccid_size);
     UT_LOG("cellular_esim_enable_profile Return ret_value: %d", ret_value);
     UT_ASSERT_EQUAL(ret_value, RETURN_ERROR);
@@ -675,7 +675,7 @@ void test_l1_lpa_hal_negative4_cellular_esim_enable_profile( void )
 {
     UT_LOG("Entering test_l1_lpa_hal_negative4_cellular_esim_enable_profile...");
     char *iccid = "random";
-    int iccid_size = 10;
+    int iccid_size = 0;
     int ret_value = 0;
     UT_LOG("Invoking cellular_esim_enable_profile with Invalid iccid. ");
     ret_value = cellular_esim_enable_profile(iccid, iccid_size);
@@ -706,7 +706,7 @@ void test_l1_lpa_hal_positive1_cellular_esim_disable_profile(void)
 {
     UT_LOG("Entering test_l1_lpa_hal_positive1_cellular_esim_disable_profile...");
     char* iccid = "98410800004860024951";
-    int iccid_size = 10;
+    int iccid_size = 0;
     UT_LOG("Invoking cellular_esim_disable_profile() with valid iccid and iccid_size"); 
     int result = cellular_esim_disable_profile(iccid, iccid_size);
     UT_LOG("cellular_esim_disable_profile iccid_size value : %d",iccid_size);   
@@ -748,7 +748,7 @@ void test_l1_lpa_hal_positive2_cellular_esim_disable_profile(void)
 {
     UT_LOG("Entering test_l1_lpa_hal_positive2_cellular_esim_disable_profile...");
     char* iccid = "98414102915071000054";
-    int iccid_size = 10;
+    int iccid_size = 0;
     UT_LOG("Invoking cellular_esim_disable_profile() with valid iccid and iccid_size");
     int result = cellular_esim_disable_profile(iccid, iccid_size);
     UT_LOG("cellular_esim_disable_profile iccid_size value : %d",iccid_size);
@@ -788,7 +788,7 @@ void test_l1_lpa_hal_positive3_cellular_esim_disable_profile(void)
 {
     UT_LOG("Entering test_l1_lpa_hal_positive3_cellular_esim_disable_profile...");
     char* iccid = "98109909002143658739";
-    int iccid_size = 10;
+    int iccid_size = 0;
     UT_LOG("Invoking cellular_esim_disable_profile() with valid iccid and iccid_size");
     int result = cellular_esim_disable_profile(iccid, iccid_size);
     UT_LOG("cellular_esim_disable_profile Return result: %d", result);
@@ -830,8 +830,8 @@ void test_l1_lpa_hal_negative1_cellular_esim_disable_profile(void)
 {
     UT_LOG("Entering test_l1_lpa_hal_negative1_cellular_esim_disable_profile...");
     char* iccid = NULL;
-    int iccid_size = 10;
-    UT_LOG("Invoking cellular_esim_disable_profile() with NULL iccid and iccid_size equals to 10");
+    int iccid_size = 0;
+    UT_LOG("Invoking cellular_esim_disable_profile() with NULL iccid ");
     int result = cellular_esim_disable_profile(iccid, iccid_size);
     UT_LOG("cellular_esim_disable_profile Return result: %d", result);
     UT_ASSERT_EQUAL(result, RETURN_ERROR);
@@ -859,8 +859,8 @@ void test_l1_lpa_hal_negative1_cellular_esim_disable_profile(void)
 void test_l1_lpa_hal_negative2_cellular_esim_disable_profile(void) {
     UT_LOG("Entering test_l1_lpa_hal_negative2_cellular_esim_disable_profile...");
     char *iccid = "98410A00@04860024951";
-    int iccid_size = 10;
-    UT_LOG("Invoking cellular_esim_disable_profile() with iccid contains alphanumeric or special characters and iccid_size equals to 10");
+    int iccid_size = 0;
+    UT_LOG("Invoking cellular_esim_disable_profile() with iccid contains alphanumeric or special characters");
     int result = cellular_esim_disable_profile(iccid, iccid_size);
     UT_LOG("cellular_esim_disable_profile Return result: %d", result);
     UT_ASSERT_EQUAL(result, RETURN_ERROR);
@@ -888,8 +888,8 @@ void test_l1_lpa_hal_negative2_cellular_esim_disable_profile(void) {
 void test_l1_lpa_hal_negative3_cellular_esim_disable_profile(void) {
     UT_LOG("Entering test_l1_lpa_hal_negative3_cellular_esim_disable_profile...");
     char *iccid = "984141";
-    int iccid_size = 10;
-    UT_LOG("Invoking cellular_esim_disable_profile() with Invalid iccid string and iccid_size equals to 10");
+    int iccid_size = 0;
+    UT_LOG("Invoking cellular_esim_disable_profile() with Invalid iccid string ");
     int result = cellular_esim_disable_profile(iccid, iccid_size);
     UT_LOG("cellular_esim_disable_profile Return result: %d", result);
     UT_ASSERT_EQUAL(result, RETURN_ERROR);
@@ -918,8 +918,8 @@ void test_l1_lpa_hal_negative3_cellular_esim_disable_profile(void) {
 void test_l1_lpa_hal_negative4_cellular_esim_disable_profile(void) {
     UT_LOG("Entering test_l1_lpa_hal_negative4_cellular_esim_disable_profile...");
     char *iccid = "";
-    int iccid_size = 10;
-    UT_LOG("Invoking cellular_esim_disable_profile() with Empty iccid and iccid_size equals to 10");
+    int iccid_size = 0;
+    UT_LOG("Invoking cellular_esim_disable_profile() with Empty iccid ");
     int result = cellular_esim_disable_profile(iccid, iccid_size);
     UT_LOG("cellular_esim_disable_profile Return result: %d", result);
     UT_ASSERT_EQUAL(result, RETURN_ERROR);
@@ -948,8 +948,8 @@ void test_l1_lpa_hal_positive1_cellular_esim_delete_profile(void)
 {
     UT_LOG("Entering test_l1_lpa_hal_positive1_cellular_esim_delete_profile...");
     char *iccid = "98410800004860024951";
-    int iccid_size = 10;
-    UT_LOG("Invoking cellular_esim_delete_profile with a valid ICCID of size 10.");
+    int iccid_size = 0;
+    UT_LOG("Invoking cellular_esim_delete_profile with a valid ICCID ");
     int status = cellular_esim_delete_profile(iccid, iccid_size);
     UT_LOG("cellular_esim_delete_profile Return status: %d", status);
     UT_LOG("cellular_esim_delete_profile iccid_size value : %d",iccid_size);
@@ -989,8 +989,8 @@ void test_l1_lpa_hal_positive2_cellular_esim_delete_profile(void)
 {
     UT_LOG("Entering test_l1_lpa_hal_positive2_cellular_esim_delete_profile...");
     char *iccid = "98109909002143658739";
-    int iccid_size = 10;
-    UT_LOG("Invoking cellular_esim_delete_profile with valid ICCIDs of size 10.");
+    int iccid_size = 0;
+    UT_LOG("Invoking cellular_esim_delete_profile with valid ICCIDs.");
     int status = cellular_esim_delete_profile(iccid, iccid_size);
     UT_LOG(" cellular_esim_delete_profile Return status: %d", status);
     UT_LOG("cellular_esim_delete_profile iccid_size value : %d",iccid_size);
@@ -1029,8 +1029,8 @@ void test_l1_lpa_hal_positive3_cellular_esim_delete_profile(void)
 {
     UT_LOG("Entering test_l1_lpa_hal_positive3_cellular_esim_delete_profile...");
     char *iccid = "98414102915071000054";
-    int iccid_size = 10;
-    UT_LOG("Invoking cellular_esim_delete_profile with valid ICCIDs of size 10. ");
+    int iccid_size = 0;
+    UT_LOG("Invoking cellular_esim_delete_profile with valid ICCIDs  ");
     int status = cellular_esim_delete_profile(iccid, iccid_size);
     UT_LOG("cellular_esim_delete_profile Return status: %d", status);
     UT_LOG("cellular_esim_delete_profile iccid_size value : %d",iccid_size);
@@ -1070,7 +1070,7 @@ void test_l1_lpa_hal_negative1_cellular_esim_delete_profile(void)
 {
     UT_LOG("Entering test_l1_lpa_hal_negative1_cellular_esim_delete_profile...");
     char *iccid = NULL;
-    int iccid_size = 10;
+    int iccid_size = 0;
     UT_LOG("Invoking cellular_esim_delete_profile with NULL ICCID. ");
     int status = cellular_esim_delete_profile(iccid, iccid_size);
     UT_LOG("cellular_esim_delete_profile Return status: %d", status);
@@ -1100,8 +1100,8 @@ void test_l1_lpa_hal_negative2_cellular_esim_delete_profile(void)
 {
     UT_LOG("Entering test_l1_lpa_hal_negative2_cellular_esim_delete_profile...");
     char *iccid = "98109909002@43658739";
-    int iccid_size = 10;
-    UT_LOG("Invoking cellular_esim_delete_profile with Invalid ICCID and iccid_size = 10 ");
+    int iccid_size = 0;
+    UT_LOG("Invoking cellular_esim_delete_profile with Invalid ICCID");
     int status = cellular_esim_delete_profile(iccid, iccid_size);
     UT_LOG("cellular_esim_delete_profile Return status: %d", status);
     UT_ASSERT_EQUAL(status, RETURN_ERROR);
@@ -1129,8 +1129,8 @@ void test_l1_lpa_hal_negative3_cellular_esim_delete_profile(void)
 {
     UT_LOG("Entering test_l1_lpa_hal_negative3_cellular_esim_delete_profile...");
     char *iccid = "";
-    int iccid_size = 10;
-    UT_LOG("Invoking cellular_esim_delete_profile with Empty string of ICCID and iccid_size = 10 ");
+    int iccid_size = 0;
+    UT_LOG("Invoking cellular_esim_delete_profile with Empty string of ICCID ");
     int status = cellular_esim_delete_profile(iccid, iccid_size);
     UT_LOG("cellular_esim_delete_profile Return status: %d", status);
     UT_ASSERT_EQUAL(status, RETURN_ERROR);
@@ -1158,8 +1158,8 @@ void test_l1_lpa_hal_negative4_cellular_esim_delete_profile(void)
 {
     UT_LOG("Entering test_l1_lpa_hal_negative4_cellular_esim_delete_profile...");
     char *iccid = "random";
-    int iccid_size = 10;
-    UT_LOG("Invoking cellular_esim_delete_profile with Invalid ICCID and iccid_size = 10 ");
+    int iccid_size = 0;
+    UT_LOG("Invoking cellular_esim_delete_profile with Invalid ICCID ");
     int status = cellular_esim_delete_profile(iccid, iccid_size);
     UT_LOG("cellular_esim_delete_profile Return status: %d", status);
     UT_ASSERT_EQUAL(status, RETURN_ERROR);
@@ -1222,9 +1222,9 @@ void test_l1_lpa_hal_positive1_cellular_esim_lpa_init(void){
 void test_l1_lpa_hal_positive1_cellular_esim_exit(void)
 {
     UT_LOG("Entering test_l1_lpa_hal_positive1_cellular_esim_lpa_exit()...");
+    int returnValue = 0;
     UT_LOG("Invoking cellular_esim_lpa_exit() function");
-    int returnValue = cellular_esim_lpa_exit();
-
+    returnValue = cellular_esim_lpa_exit();
     UT_LOG("cellular_esim_lpa_exit Return returnValue: %d", returnValue);
     int res=cellular_esim_lpa_init();
     UT_LOG("cellular_esim_lpa_init Return res: %d", res);
@@ -1256,12 +1256,11 @@ void test_l1_lpa_hal_positive1_cellular_esim_exit(void)
 */
 
 void test_l1_lpa_hal_positive1_cellular_esim_get_eid(void)
-{
-   // int returnValue;
-   
+{   
     UT_LOG("Entering test_l1_lpa_hal_positive1_cellular_esim_get_eid...");
+    int returnValue = 0;
     UT_LOG("Invoking cellular_esim_get_eid() function");
-    int returnValue = cellular_esim_get_eid();
+    returnValue = cellular_esim_get_eid();
     UT_LOG("cellular_esim_get_eid Return returnValue: %d", returnValue);
 
     UT_ASSERT_EQUAL(returnValue, RETURN_OK);
@@ -1291,9 +1290,10 @@ void test_l1_lpa_hal_positive1_cellular_esim_get_eid(void)
 void test_l1_lpa_hal_positive1_cellular_esim_get_euicc(void)
 {
     UT_LOG("Entering test_l1_lpa_hal_positive1_cellular_esim_get_euicc...");
+    int returnValue = 0; 
     UT_LOG("Invoking cellular_esim_get_euicc with no input parameters.");
     
-    int returnValue = cellular_esim_get_euicc();
+    returnValue = cellular_esim_get_euicc();
     UT_LOG("cellular_esim_get_euicc Return returnValue: %d", returnValue);
 
     UT_ASSERT_EQUAL(returnValue, RETURN_OK);
@@ -1342,13 +1342,42 @@ int register_hal_tests(void)
     if (pSuite == NULL) {
         return -1;
     }
-    // List of test function names and strings
-    const char* list1[] = { "l1_lpa_hal_positive1_cellular_esim_download_profile_from_smds","l1_lpa_hal_negative1_cellular_esim_download_profile_from_smds","l1_lpa_hal_negative2_cellular_esim_download_profile_from_smds","l1_lpa_hal_negative3_cellular_esim_download_profile_from_smds","l1_lpa_hal_positive1_cellular_esim_download_profile_from_defaultsmdp","l1_lpa_hal_negative1_cellular_esim_download_profile_from_defaultsmdp","l1_lpa_hal_negative2_cellular_esim_download_profile_from_defaultsmdp","l1_lpa_hal_negative3_cellular_esim_download_profile_from_defaultsmdp","l1_lpa_hal_positive1_cellular_esim_get_profile_info","l1_lpa_hal_negative1_cellular_esim_get_profile_info","l1_lpa_hal_negative2_cellular_esim_get_profile_info","l1_lpa_hal_positive1_cellular_esim_enable_profile","l1_lpa_hal_positive2_cellular_esim_enable_profile","l1_lpa_hal_positive3_cellular_esim_enable_profile","l1_lpa_hal_negative1_cellular_esim_enable_profile","l1_lpa_hal_negative2_cellular_esim_enable_profile","l1_lpa_hal_negative3_cellular_esim_enable_profile","l1_lpa_hal_negative4_cellular_esim_enable_profile","l1_lpa_hal_positive1_cellular_esim_disable_profile","l1_lpa_hal_positive2_cellular_esim_disable_profile","l1_lpa_hal_positive3_cellular_esim_disable_profile","l1_lpa_hal_negative1_cellular_esim_disable_profile","l1_lpa_hal_negative2_cellular_esim_disable_profile","l1_lpa_hal_negative3_cellular_esim_disable_profile","l1_lpa_hal_negative4_cellular_esim_disable_profile","l1_lpa_hal_positive1_cellular_esim_delete_profile","l1_lpa_hal_positive2_cellular_esim_delete_profile","l1_lpa_hal_positive3_cellular_esim_delete_profile","l1_lpa_hal_negative1_cellular_esim_delete_profile","l1_lpa_hal_negative2_cellular_esim_delete_profile","l1_lpa_hal_negative3_cellular_esim_delete_profile","l1_lpa_hal_negative4_cellular_esim_delete_profile","l1_lpa_hal_positive1_cellular_esim_lpa_init","l1_lpa_hal_positive1_cellular_esim_exit","l1_lpa_hal_positive1_cellular_esim_get_eid","l1_lpa_hal_positive1_cellular_esim_get_euicc"};
-    void (*list2[])() = {test_l1_lpa_hal_positive1_cellular_esim_download_profile_from_smds,test_l1_lpa_hal_negative1_cellular_esim_download_profile_from_smds,test_l1_lpa_hal_negative2_cellular_esim_download_profile_from_smds,test_l1_lpa_hal_negative3_cellular_esim_download_profile_from_smds,test_l1_lpa_hal_positive1_cellular_esim_download_profile_from_defaultsmdp,test_l1_lpa_hal_negative1_cellular_esim_download_profile_from_defaultsmdp,test_l1_lpa_hal_negative2_cellular_esim_download_profile_from_defaultsmdp,test_l1_lpa_hal_negative3_cellular_esim_download_profile_from_defaultsmdp,test_l1_lpa_hal_positive1_cellular_esim_get_profile_info,test_l1_lpa_hal_negative1_cellular_esim_get_profile_info,test_l1_lpa_hal_negative2_cellular_esim_get_profile_info,test_l1_lpa_hal_positive1_cellular_esim_enable_profile,test_l1_lpa_hal_positive2_cellular_esim_enable_profile,test_l1_lpa_hal_positive3_cellular_esim_enable_profile,test_l1_lpa_hal_negative1_cellular_esim_enable_profile,test_l1_lpa_hal_negative2_cellular_esim_enable_profile,test_l1_lpa_hal_negative3_cellular_esim_enable_profile,test_l1_lpa_hal_negative4_cellular_esim_enable_profile,test_l1_lpa_hal_positive1_cellular_esim_disable_profile,test_l1_lpa_hal_positive2_cellular_esim_disable_profile,test_l1_lpa_hal_positive3_cellular_esim_disable_profile,test_l1_lpa_hal_negative1_cellular_esim_disable_profile,test_l1_lpa_hal_negative2_cellular_esim_disable_profile,test_l1_lpa_hal_negative3_cellular_esim_disable_profile,test_l1_lpa_hal_negative4_cellular_esim_disable_profile,test_l1_lpa_hal_positive1_cellular_esim_delete_profile,test_l1_lpa_hal_positive2_cellular_esim_delete_profile,test_l1_lpa_hal_positive3_cellular_esim_delete_profile,test_l1_lpa_hal_negative1_cellular_esim_delete_profile,test_l1_lpa_hal_negative2_cellular_esim_delete_profile,test_l1_lpa_hal_negative3_cellular_esim_delete_profile,test_l1_lpa_hal_negative4_cellular_esim_delete_profile,test_l1_lpa_hal_positive1_cellular_esim_lpa_init,test_l1_lpa_hal_positive1_cellular_esim_exit,test_l1_lpa_hal_positive1_cellular_esim_get_eid,test_l1_lpa_hal_positive1_cellular_esim_get_euicc};
-    // Add tests to the suite
-    for (int i = 0; i < sizeof(list1) / sizeof(list1[0]); i++) {
-        UT_add_test(pSuite, list1[i], list2[i]);
-    }
+    UT_add_test( pSuite, "l1_lpa_hal_positive1_cellular_esim_download_profile_from_smds", test_l1_lpa_hal_positive1_cellular_esim_download_profile_from_smds);
+    UT_add_test( pSuite, "l1_lpa_hal_negative1_cellular_esim_download_profile_from_smds", test_l1_lpa_hal_negative1_cellular_esim_download_profile_from_smds);
+    UT_add_test( pSuite, "l1_lpa_hal_negative2_cellular_esim_download_profile_from_smds", test_l1_lpa_hal_negative2_cellular_esim_download_profile_from_smds);
+    UT_add_test( pSuite, "l1_lpa_hal_negative3_cellular_esim_download_profile_from_smds", test_l1_lpa_hal_negative3_cellular_esim_download_profile_from_smds);
+    UT_add_test( pSuite, "l1_lpa_hal_positive1_cellular_esim_download_profile_from_defaultsmdp", test_l1_lpa_hal_positive1_cellular_esim_download_profile_from_defaultsmdp);
+    UT_add_test( pSuite, "l1_lpa_hal_negative1_cellular_esim_download_profile_from_defaultsmdp", test_l1_lpa_hal_negative1_cellular_esim_download_profile_from_defaultsmdp);
+    UT_add_test( pSuite, "l1_lpa_hal_negative2_cellular_esim_download_profile_from_defaultsmdp", test_l1_lpa_hal_negative2_cellular_esim_download_profile_from_defaultsmdp);
+    UT_add_test( pSuite, "l1_lpa_hal_negative3_cellular_esim_download_profile_from_defaultsmdp", test_l1_lpa_hal_negative3_cellular_esim_download_profile_from_defaultsmdp);
+    UT_add_test( pSuite, "l1_lpa_hal_positive1_cellular_esim_get_profile_info", test_l1_lpa_hal_positive1_cellular_esim_get_profile_info);
+    UT_add_test( pSuite, "l1_lpa_hal_negative1_cellular_esim_get_profile_info", test_l1_lpa_hal_negative1_cellular_esim_get_profile_info);
+    UT_add_test( pSuite, "l1_lpa_hal_negative2_cellular_esim_get_profile_info", test_l1_lpa_hal_negative2_cellular_esim_get_profile_info);
+    UT_add_test( pSuite, "l1_lpa_hal_positive1_cellular_esim_enable_profile", test_l1_lpa_hal_positive1_cellular_esim_enable_profile);
+    UT_add_test( pSuite, "l1_lpa_hal_positive2_cellular_esim_enable_profile", test_l1_lpa_hal_positive2_cellular_esim_enable_profile);
+    UT_add_test( pSuite, "l1_lpa_hal_positive3_cellular_esim_enable_profile", test_l1_lpa_hal_positive3_cellular_esim_enable_profile);
+    UT_add_test( pSuite, "l1_lpa_hal_negative1_cellular_esim_enable_profile", test_l1_lpa_hal_negative1_cellular_esim_enable_profile);
+    UT_add_test( pSuite, "l1_lpa_hal_negative2_cellular_esim_enable_profile", test_l1_lpa_hal_negative2_cellular_esim_enable_profile);
+    UT_add_test( pSuite, "l1_lpa_hal_negative3_cellular_esim_enable_profile", test_l1_lpa_hal_negative3_cellular_esim_enable_profile);
+    UT_add_test( pSuite, "l1_lpa_hal_negative4_cellular_esim_enable_profile", test_l1_lpa_hal_negative4_cellular_esim_enable_profile);
+    UT_add_test( pSuite, "l1_lpa_hal_positive1_cellular_esim_disable_profile", test_l1_lpa_hal_positive1_cellular_esim_disable_profile);
+    UT_add_test( pSuite, "l1_lpa_hal_positive2_cellular_esim_disable_profile", test_l1_lpa_hal_positive2_cellular_esim_disable_profile);
+    UT_add_test( pSuite, "l1_lpa_hal_positive3_cellular_esim_disable_profile", test_l1_lpa_hal_positive3_cellular_esim_disable_profile);
+    UT_add_test( pSuite, "l1_lpa_hal_negative1_cellular_esim_disable_profile", test_l1_lpa_hal_negative1_cellular_esim_disable_profile);
+    UT_add_test( pSuite, "l1_lpa_hal_negative2_cellular_esim_disable_profile", test_l1_lpa_hal_negative2_cellular_esim_disable_profile);
+    UT_add_test( pSuite, "l1_lpa_hal_negative3_cellular_esim_disable_profile", test_l1_lpa_hal_negative3_cellular_esim_disable_profile);
+    UT_add_test( pSuite, "l1_lpa_hal_negative4_cellular_esim_disable_profile", test_l1_lpa_hal_negative4_cellular_esim_disable_profile);
+    UT_add_test( pSuite, "l1_lpa_hal_positive1_cellular_esim_delete_profile", test_l1_lpa_hal_positive1_cellular_esim_delete_profile);
+    UT_add_test( pSuite, "l1_lpa_hal_positive2_cellular_esim_delete_profile", test_l1_lpa_hal_positive2_cellular_esim_delete_profile);
+    UT_add_test( pSuite, "l1_lpa_hal_positive3_cellular_esim_delete_profile", test_l1_lpa_hal_positive3_cellular_esim_delete_profile);
+    UT_add_test( pSuite, "l1_lpa_hal_negative1_cellular_esim_delete_profile", test_l1_lpa_hal_negative1_cellular_esim_delete_profile);
+    UT_add_test( pSuite, "l1_lpa_hal_negative2_cellular_esim_delete_profile", test_l1_lpa_hal_negative2_cellular_esim_delete_profile);
+    UT_add_test( pSuite, "l1_lpa_hal_negative3_cellular_esim_delete_profile", test_l1_lpa_hal_negative3_cellular_esim_delete_profile);
+    UT_add_test( pSuite, "l1_lpa_hal_negative4_cellular_esim_delete_profile", test_l1_lpa_hal_negative4_cellular_esim_delete_profile);
+    UT_add_test( pSuite, "l1_lpa_hal_positive1_cellular_esim_lpa_init", test_l1_lpa_hal_positive1_cellular_esim_lpa_init);
+    UT_add_test( pSuite, "l1_lpa_hal_positive1_cellular_esim_exit", test_l1_lpa_hal_positive1_cellular_esim_exit);
+    UT_add_test( pSuite, "l1_lpa_hal_positive1_cellular_esim_get_eid", test_l1_lpa_hal_positive1_cellular_esim_get_eid);
+    UT_add_test( pSuite, "l1_lpa_hal_positive1_cellular_esim_get_euicc", test_l1_lpa_hal_positive1_cellular_esim_get_euicc);
     return 0;
 }
 int main(int argc, char** argv)
