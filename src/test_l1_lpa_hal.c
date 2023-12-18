@@ -1240,7 +1240,7 @@ static UT_test_suite_t * pSuite = NULL;
  *
  * @return int - 0 on success, otherwise failure
  */
-int register_hal_tests(void)
+int test_lpa_hal_l1_register(void)
 {
     // Create the test suite
     pSuite = UT_add_suite("[L1 lpa_hal]",init_cellular_esim_init,clean_cellular_esim_exit);
@@ -1283,25 +1283,5 @@ int register_hal_tests(void)
     UT_add_test( pSuite, "l1_lpa_hal_positive1_cellular_esim_exit", test_l1_lpa_hal_positive1_cellular_esim_exit);
     UT_add_test( pSuite, "l1_lpa_hal_positive1_cellular_esim_get_eid", test_l1_lpa_hal_positive1_cellular_esim_get_eid);
     UT_add_test( pSuite, "l1_lpa_hal_positive1_cellular_esim_get_euicc", test_l1_lpa_hal_positive1_cellular_esim_get_euicc);
-    return 0;
-}
-int main(int argc, char** argv)
-{
-    int registerReturn = 0;
-    /* Register tests as required, then call the UT-main to support switches and triggering */
-    UT_init( argc, argv );
-    /* Check if tests are registered successfully */
-    registerReturn = register_hal_tests();
-    if (registerReturn == 0)
-    {
-        printf("register_hal_tests() returned success");
-    }
-    else
-    {
-        printf("register_hal_tests() returned failure");
-        return 1;
-    }
-    /* Begin test executions */
-    UT_run_tests();
     return 0;
 }
