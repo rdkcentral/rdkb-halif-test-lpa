@@ -1112,7 +1112,7 @@ void test_l1_lpa_hal_positive1_cellular_esim_lpa_init(void)
 * This test verifies the successful operation of the cellular_esim_lpa_exit function under normal operation. @n
 * @n
 * **Test Group ID:** Basic: 01 @n
-* **Test Case ID:** 035 @n
+* **Test Case ID:** 034 @n
 * **Priority:** High @n
 *  @n
 * **Pre-Conditions:** None @n
@@ -1147,7 +1147,7 @@ void test_l1_lpa_hal_positive1_cellular_esim_exit(void)
 * This unit test checks whether the cellular_esim_get_eid function retrieves the Embedded Identifier (EID) successfully for a cellular eSIM.
 * @n
 * **Test Group ID:** Basic: 01 @n
-* **Test Case ID:** 036 @n
+* **Test Case ID:** 035 @n
 * **Priority:** High @n
 * @n
 * **Pre-Conditions:** None @n
@@ -1179,7 +1179,7 @@ void test_l1_lpa_hal_positive1_cellular_esim_get_eid(void)
 * This function tests the cellular_esim_get_euicc API in the L1 Layer . @n 
 * @n
 * **Test Group ID:** Basic: 01 @n
-* **Test Case ID:** 038 @n
+* **Test Case ID:** 036 @n
 * **Priority:** High @n
 * @n
 * **Pre-Conditions:** None @n
