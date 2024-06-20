@@ -126,7 +126,7 @@ void test_l1_lpa_hal_negative2_cellular_esim_download_profile_from_smds(void)
 /**
 * @brief Tests the eSIM download profile function with an empty smds
 *
-* This test invokes the cellular_esim_download_profile_from_smds() function with an empty smds string. @n
+* This test invokes the cellular_esim_download_profile_from_smds() function with an invalid smds string. @n
 * @n
 * **Test Group ID:** Basic: 01@n
 * **Test Case ID:** 004@n
@@ -168,7 +168,7 @@ void test_l1_lpa_hal_negative3_cellular_esim_download_profile_from_smds(void)
 * **Test Procedure:**@n
 * | Variation / Step | Description | Test Data |Expected Result |Notes |
 * | :----: | --------- | ---------- |-------------- | ----- |
-* | 01 | Invoking the API cellular_esim_download_profile_from_defaultsmdp with valid smdp | smdp = "oem-smds-json.demo.gemalto.com" | RETURN_OK | Should be successful |
+* | 01 | Invoking the API cellular_esim_download_profile_from_defaultsmdp with valid smdp | smdp = "smdp-plus.test.gsma.com" | RETURN_OK | Should be successful |
 */
 void test_l1_lpa_hal_positive1_cellular_esim_download_profile_from_defaultsmdp(void)
 {
@@ -444,7 +444,7 @@ else
 * **Test Procedure:**@n
 * | Variation / Step | Description | Test Data |Expected Result |Notes |
 * | :----: | --------- | ---------- |-------------- | ----- |
-* | 01 | The function 'cellular_esim_enable_profile' is invoked with valid 'iccid' and 'iccid_size' | iccid = 98410800004860024951, iccid_size = 10 | RETURN_OK | Should be successful |
+* | 01 | The function 'cellular_esim_enable_profile' is invoked with valid 'iccid' and 'iccid_size' | iccid = 98410800004860024951, iccid_size = 20 | RETURN_OK | Should be successful |
 */
 void test_l1_lpa_hal_positive1_cellular_esim_enable_profile( void )
 {
@@ -475,7 +475,7 @@ void test_l1_lpa_hal_positive1_cellular_esim_enable_profile( void )
 * **Test Procedure:**@n
 * | Variation / Step | Description | Test Data |Expected Result |Notes |
 * | :----: | --------- | ---------- |-------------- | ----- |
-* | 01 | The function 'cellular_esim_enable_profile' is invoked with valid 'iccid' and 'iccid_size' | iccid = 98109909002143658739, iccid_size = 10 | RETURN_OK | Should be successful |
+* | 01 | The function 'cellular_esim_enable_profile' is invoked with valid 'iccid' and 'iccid_size' | iccid = 98109909002143658739, iccid_size = 20 | RETURN_OK | Should be successful |
 */
 void test_l1_lpa_hal_positive2_cellular_esim_enable_profile( void )
 {
@@ -506,7 +506,7 @@ void test_l1_lpa_hal_positive2_cellular_esim_enable_profile( void )
 * **Test Procedure:**@n
 * | Variation / Step | Description | Test Data |Expected Result |Notes |
 * | :----: | --------- | ---------- |-------------- | ----- |
-* | 01 | The function 'cellular_esim_enable_profile' is invoked with valid 'iccid' and 'iccid_size' | iccid = 98414102915071000054, iccid_size = 10 | The function should return 'RETURN_OK', indicating success | Should be successful |
+* | 01 | The function 'cellular_esim_enable_profile' is invoked with valid 'iccid' and 'iccid_size' | iccid = 98414102915071000054, iccid_size = 20 | The function should return 'RETURN_OK', indicating success | Should be successful |
 */
 void test_l1_lpa_hal_positive3_cellular_esim_enable_profile( void )
 {
@@ -538,7 +538,7 @@ void test_l1_lpa_hal_positive3_cellular_esim_enable_profile( void )
 * **Test Procedure:**@n
 * | Variation / Step | Description | Test Data |Expected Result |Notes |
 * | ---- | --------- | ---------- |-------------- | ----- |
-* | 01 | Invoke the API cellular_esim_enable_profile API with NULL iccid | iccid = NULL, iccid_size = 10 | RETURN_ERR | Should be Fail |
+* | 01 | Invoke the API cellular_esim_enable_profile API with NULL iccid | iccid = NULL, iccid_size = 20 | RETURN_ERR | Should be Fail |
 */
 
 void test_l1_lpa_hal_negative1_cellular_esim_enable_profile( void )
@@ -557,7 +557,7 @@ void test_l1_lpa_hal_negative1_cellular_esim_enable_profile( void )
 /**
  * @brief Test function for negative scenarios in cellular_esim_enable_profile API.
  *
- * This test is focused on validating the cellular_esim_enable_profile API response when iccid_size is Invalid. @n
+ * This test is focused on validating the cellular_esim_enable_profile API response when iccid is Invalid. @n
  * @n
  * **Test Group ID:** Basic: 01 @n
  * **Test Case ID:** 016 @n
@@ -570,7 +570,7 @@ void test_l1_lpa_hal_negative1_cellular_esim_enable_profile( void )
  * **Test Procedure:**@n
  * | Variation / Step | Description | Test Data |Expected Result |Notes |
  * | :----: | --------- | ---------- |-------------- | ----- |
- * | 01 | Invoke cellular_esim_enable_profile API with a Invalid value for iccid_size | iccid = "98414102915071@#0054", iccid_size = 10 | RETURN_ERR | Should fail |
+ * | 01 | Invoke cellular_esim_enable_profile API with a Invalid value for iccid | iccid = "98414102915071@#0054", iccid_size = 20 | RETURN_ERR | Should fail |
  */
 void test_l1_lpa_hal_negative2_cellular_esim_enable_profile( void )
 {
@@ -600,7 +600,7 @@ void test_l1_lpa_hal_negative2_cellular_esim_enable_profile( void )
  * **Test Procedure:**@n
  * | Variation / Step | Description | Test Data |Expected Result |Notes |
  * | :----: | --------- | ---------- |-------------- | ----- |
- * | 01 | Invoke cellular_esim_enable_profile API with empty string for iccid | iccid = "", iccid_size = 10 | RETURN_ERR | Should fail |
+ * | 01 | Invoke cellular_esim_enable_profile API with empty string for iccid | iccid = "", iccid_size = 20 | RETURN_ERR | Should fail |
  */
 void test_l1_lpa_hal_negative3_cellular_esim_enable_profile( void )
 {
@@ -630,7 +630,7 @@ void test_l1_lpa_hal_negative3_cellular_esim_enable_profile( void )
  * **Test Procedure:**@n
  * | Variation / Step | Description | Test Data |Expected Result |Notes |
  * | :----: | --------- | ---------- |-------------- | ----- |
- * | 01 | Invoke cellular_esim_enable_profile API with Invalid value | iccid = "random", iccid_size = 10 | RETURN_ERR | Should fail |
+ * | 01 | Invoke cellular_esim_enable_profile API with Invalid value | iccid = "random", iccid_size = 20 | RETURN_ERR | Should fail |
  */
 void test_l1_lpa_hal_negative4_cellular_esim_enable_profile( void )
 {
@@ -661,7 +661,7 @@ void test_l1_lpa_hal_negative4_cellular_esim_enable_profile( void )
  * **Test Procedure:**@n
  * | Variation / Step | Description      | Test Data     | Expected Result | Notes     |
  * | :----:            | ---------       | ----------    |--------------   | -----     |
- * | 01                | Invoke cellular_esim_disable_profile() with valid iccid and iccid_size   | iccid = 98410800004860024951, iccid_size = 10  | RETURN_OK   | Should be successful |
+ * | 01                | Invoke cellular_esim_disable_profile() with valid iccid and iccid_size   | iccid = 98410800004860024951, iccid_size = 20  | RETURN_OK   | Should be successful |
  */
 void test_l1_lpa_hal_positive1_cellular_esim_disable_profile(void) 
 {
@@ -693,7 +693,7 @@ void test_l1_lpa_hal_positive1_cellular_esim_disable_profile(void)
 * **Test Procedure:**@n
 * | Variation / Step | Description | Test Data |Expected Result |Notes |
 * | :----: | --------- | ---------- |-------------- | ----- |
-* | 01 | Invoke cellular_esim_disable_profile with valid iccid and iccid_size | iccid = 98414102915071000054, iccid_size = 10 | RETURN_OK | Should be Successfull |
+* | 01 | Invoke cellular_esim_disable_profile with valid iccid and iccid_size | iccid = 98414102915071000054, iccid_size = 20 | RETURN_OK | Should be Successfull |
 */
 void test_l1_lpa_hal_positive2_cellular_esim_disable_profile(void) 
 {
@@ -723,7 +723,7 @@ void test_l1_lpa_hal_positive2_cellular_esim_disable_profile(void)
 * **Test Procedure:**@n
 * | Variation / Step | Description | Test Data |Expected Result |Notes |
 * | :----: | --------- | ---------- |-------------- | ----- |
-* | 01 | Invoke cellular_esim_disable_profile with valid iccid and iccid_size | iccid = 98414102915071000054, iccid_size = 10 | RETURN_OK | Should be Successful |
+* | 01 | Invoke cellular_esim_disable_profile with valid iccid and iccid_size | iccid = 98414102915071000054, iccid_size = 20 | RETURN_OK | Should be Successful |
 */
 void test_l1_lpa_hal_positive3_cellular_esim_disable_profile(void) 
 {
@@ -741,7 +741,7 @@ void test_l1_lpa_hal_positive3_cellular_esim_disable_profile(void)
 /**
 * @brief This test functions checks the negative behaviour of the function cellular_esim_disable_profile
 *
-* This test stimulates the scenario where the function cellular_esim_disable_profile is invoked with NULL iccid and an integer size of 10.  @n
+* This test stimulates the scenario where the function cellular_esim_disable_profile is invoked with NULL iccid and an integer size of 20.  @n
 * @n
 * **Test Group ID:** Basic: 01 @n
 * **Test Case ID:** 022 @n
@@ -754,7 +754,7 @@ void test_l1_lpa_hal_positive3_cellular_esim_disable_profile(void)
 * **Test Procedure:**@n
 * | Variation / Step | Description | Test Data |Expected Result |Notes |
 * | :----: | --------- | ---------- |-------------- | ----- |
-* | 01 | Invoke cellular_esim_disable_profile() with NULL iccid and iccid_size equals to 10 | iccid = NULL, iccid_size = 10 | RETURN_ERR | Should be Fail |
+* | 01 | Invoke cellular_esim_disable_profile() with NULL iccid and iccid_size equals to 20 | iccid = NULL, iccid_size = 20 | RETURN_ERR | Should be Fail |
 */
 
 void test_l1_lpa_hal_negative1_cellular_esim_disable_profile(void) 
@@ -772,7 +772,7 @@ void test_l1_lpa_hal_negative1_cellular_esim_disable_profile(void)
 /**
 * @brief This test case investigates the function cellular_esim_disable_profile() with an iccid containing alphanumeric or special characters.
 *
-* In this test, the function cellular_esim_disable_profile() is invoked with a iccid that includes alphanumeric or special characters and a iccid_size equals to 10. @n
+* In this test, the function cellular_esim_disable_profile() is invoked with a iccid that includes alphanumeric or special characters and a iccid_size equals to 20. @n
 * @n
 * **Test Group ID:** Basic: 01 @n
 * **Test Case ID:** 023 @n
@@ -785,7 +785,7 @@ void test_l1_lpa_hal_negative1_cellular_esim_disable_profile(void)
 * **Test Procedure:**@n
 * | Variation / Step | Description | Test Data |Expected Result |Notes |
 * | :----: | --------- | ---------- |-------------- | ----- |
-* | 01 | Invoking cellular_esim_disable_profile() with ICCID containing alphanumeric and special characters | iccid = "98410A00@04860024951", iccid_size = 10 | RETURN_ERR | Should be Fail |
+* | 01 | Invoking cellular_esim_disable_profile() with ICCID containing alphanumeric and special characters | iccid = "98410A00@04860024951", iccid_size = 20 | RETURN_ERR | Should be Fail |
 */
 void test_l1_lpa_hal_negative2_cellular_esim_disable_profile(void) 
 {
@@ -802,7 +802,7 @@ void test_l1_lpa_hal_negative2_cellular_esim_disable_profile(void)
 /**
  * @brief This unit test is to check the behavior of the API 'cellular_esim_disable_profile' when invokded with empty ICCID
  *
- * In this test, the API cellular_esim_disable_profile is invoked with invalid ICCID and ICCID size equal to 10. @n
+ * In this test, the API cellular_esim_disable_profile is invoked with invalid ICCID and ICCID size equal to 20. @n
  * @n
  * **Test Group ID:** Basic: 01 @n
  * **Test Case ID:** 024 @n
@@ -815,7 +815,7 @@ void test_l1_lpa_hal_negative2_cellular_esim_disable_profile(void)
  * **Test Procedure:** @n
  * | Variation / Step | Description | Test Data |Expected Result |Notes |
  * | :----: | --------- | ---------- |-------------- | ----- |
- * | 01 | Invoke cellular_esim_disable_profile() with Invalid iccid string and iccid_size equals to 10  | iccid = invalid value, iccid_size = 10 | RETURN_ERR |  should be successful |
+ * | 01 | Invoke cellular_esim_disable_profile() with Invalid iccid string and iccid_size equals to 20  | iccid = invalid value, iccid_size = 20 | RETURN_ERR |  should be fail |
  */
 void test_l1_lpa_hal_negative3_cellular_esim_disable_profile(void) 
 {
@@ -845,7 +845,7 @@ void test_l1_lpa_hal_negative3_cellular_esim_disable_profile(void)
 * **Test Procedure:**@n
 * | Variation / Step | Description | Test Data |Expected Result |Notes |
 * | :----: | --------- | ---------- |-------------- | ----- |
-* | 01 | Invoke cellular_esim_disable_profile() with Empty iccid and iccid_size equals to 10. | iccid = "", iccid_size = 10 | RETURN_ERR | Should be Fail |
+* | 01 | Invoke cellular_esim_disable_profile() with Empty iccid and iccid_size equals to 20. | iccid = "", iccid_size = 20 | RETURN_ERR | Should be Fail |
 */
 
 void test_l1_lpa_hal_negative4_cellular_esim_disable_profile(void) 
@@ -876,7 +876,7 @@ void test_l1_lpa_hal_negative4_cellular_esim_disable_profile(void)
 * **Test Procedure:**@n
 * | Variation / Step | Description | Test Data |Expected Result |Notes |
 * | :----: | --------- | ---------- |-------------- | ----- |
-* | 01 | Invoking API cellular_esim_delete_profile with valid iccid value and iccid_size | iccid = 98410800004860024951, iccid_size = 10 | RETURN_OK | should be successful |
+* | 01 | Invoking API cellular_esim_delete_profile with valid iccid value and iccid_size | iccid = 98410800004860024951, iccid_size = 20 | RETURN_OK | should be successful |
 */
 void test_l1_lpa_hal_positive1_cellular_esim_delete_profile(void) 
 {
@@ -907,7 +907,7 @@ void test_l1_lpa_hal_positive1_cellular_esim_delete_profile(void)
  * **Test Procedure:**@n
  * | Variation / Step | Description | Test Data |Expected Result |Notes |
  * | :----: | --------- | ---------- |-------------- | ----- |
- * | 01 |  Invoking cellular_esim_delete_profile with valid iccid and iccid_size | iccid = 98109909002143658739, iccid_size = 10 | RETURN_OK | Should be successful |
+ * | 01 |  Invoking cellular_esim_delete_profile with valid iccid and iccid_size | iccid = 98109909002143658739, iccid_size = 20 | RETURN_OK | Should be successful |
  */
 void test_l1_lpa_hal_positive2_cellular_esim_delete_profile(void) 
 {
@@ -937,7 +937,7 @@ void test_l1_lpa_hal_positive2_cellular_esim_delete_profile(void)
  * **Test Procedure:**@n
  * | Variation / Step | Description | Test Data |Expected Result |Notes |
  * | :----: | --------- | ---------- |-------------- | ----- |
- * | 01 | Invoking cellular_esim_delete_profile with valid iccid and iccid_size | iccid1 = 98414102915071000054, iccid_size1 = 10 | RETURN_OK | Should be successful |
+ * | 01 | Invoking cellular_esim_delete_profile with valid iccid and iccid_size | iccid1 = 98414102915071000054, iccid_size = 20 | RETURN_OK | Should be successful |
  */
 void test_l1_lpa_hal_positive3_cellular_esim_delete_profile(void) 
 {
@@ -968,7 +968,7 @@ void test_l1_lpa_hal_positive3_cellular_esim_delete_profile(void)
  * **Test Procedure:**@n
  * | Variation / Step | Description   | Test Data     | Expected Result   | Notes |
  * | :-------------:  | ---------     | ----------    | --------------    | ----- |
- * | 01 |Invoke cellular_esim_delete_profile API with NULL iccid value | iccid = NULL, iccid_size = 10 | RETURN_ERR | Should fail |
+ * | 01 |Invoke cellular_esim_delete_profile API with NULL iccid value | iccid = NULL, iccid_size = 20 | RETURN_ERR | Should fail |
  */
 void test_l1_lpa_hal_negative1_cellular_esim_delete_profile(void)
 {
@@ -998,7 +998,7 @@ void test_l1_lpa_hal_negative1_cellular_esim_delete_profile(void)
  * **Test Procedure:**@n
  * | Variation / Step | Description   | Test Data      | Expected Result      | Notes |
  * | :-------------:  | ---------     | ----------     | --------------       | ----- |
- * | 01 |Invoke cellular_esim_delete_profile API with invalid alphanumeric iccid value | iccid = 98109909002@43658739, iccid_size = 10 | RETURN_ERR | Should fail |
+ * | 01 |Invoke cellular_esim_delete_profile API with invalid alphanumeric iccid value | iccid = 98109909002@43658739, iccid_size = 20 | RETURN_ERR | Should fail |
  */
 void test_l1_lpa_hal_negative2_cellular_esim_delete_profile(void)
 {
@@ -1027,7 +1027,7 @@ void test_l1_lpa_hal_negative2_cellular_esim_delete_profile(void)
  * **Test Procedure:**@n
  * | Variation / Step | Description   | Test Data    | Expected Result     | Notes |
  * | :-------------:  | ---------     | ----------   | --------------      | ----- |
- * |     01           |Invoke cellular_esim_delete_profile API with Empty string ICCID value | iccid = "", iccid_size = 10  | RETURN_ERR | Should be Fail |
+ * |     01           |Invoke cellular_esim_delete_profile API with Empty string ICCID value | iccid = "", iccid_size = 20  | RETURN_ERR | Should be Fail |
  */
 void test_l1_lpa_hal_negative3_cellular_esim_delete_profile(void)
 {
@@ -1056,7 +1056,7 @@ void test_l1_lpa_hal_negative3_cellular_esim_delete_profile(void)
  * **Test Procedure:**@n
  * | Variation / Step | Description   | Test Data        | Expected Result     | Notes |
  * | :-------------:  | ---------     | ----------       | --------------      | ----- |
- * |     01   |Invoke cellular_esim_delete_profile API with Invalid ICCID value | iccid = random, iccid_size = 10  | RETURN_ERR | Should be Fail |
+ * |     01   |Invoke cellular_esim_delete_profile API with Invalid ICCID value | iccid = random, iccid_size = 20  | RETURN_ERR | Should be Fail |
  */
 void test_l1_lpa_hal_negative4_cellular_esim_delete_profile(void)
 {
