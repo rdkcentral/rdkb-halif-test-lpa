@@ -132,7 +132,7 @@ void freeiccid(void)
 
 int get_iccid(void)
 {
-    char configFile[] = "../config/lpa_config";
+    char configFile[] = "./lpa_config";
     cJSON *value = NULL;
     cJSON *json = NULL;
     cJSON *item = NULL;
