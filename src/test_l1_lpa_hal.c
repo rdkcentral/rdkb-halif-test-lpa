@@ -34,6 +34,155 @@
 #include <ut_log.h>
 #include "lpa_hal.h"
 #include <stdlib.h>
+#include "cJSON.h"
+#include <string.h>
+#include <ctype.h>
+#include<stdbool.h>
+
+char** iccid = NULL;
+int num_iccid = 0;
+
+/**function to read the json config file and return its content as a string
+ *IN : json file name
+ *OUT : content of json file as string
+ **/
+static char *read_file(const char *filename)
+{
+    FILE *file = NULL;
+    long length = 0;
+    char *content = NULL;
+    size_t read_chars = 0;
+
+    /* open in read mode */
+    file = fopen(filename, "r");
+    if (file == NULL)
+    {
+        printf("Please place lpa_config file ,where your binary is placed\n");
+        exit(1);
+    }
+    else
+    {
+        /* get the length */
+        if (fseek(file, 0, SEEK_END) == 0)
+        {
+            length = ftell(file);
+            if (length > 0)
+            {
+                if (fseek(file, 0, SEEK_SET) == 0)
+                {
+                    /* allocate content buffer */
+                    content = (char *)malloc((size_t)length + sizeof(""));
+                    if (content != NULL)
+                    {
+                        /* read the file into memory */
+                        read_chars = fread(content, sizeof(char), (size_t)length, file);
+                        if ((long)read_chars != length)
+                        {
+                            free(content);
+                            content = NULL;
+                        }
+                        else
+                            content[read_chars] = '\0';
+                    }
+                }
+            }
+            else
+            {
+                printf("lpa_config file is empty. please add configuration\n");
+                exit(1);
+            }
+        }
+        fclose(file);
+    }
+    return content;
+}
+
+/**function to read the json config file and return its content as a json object
+ *IN : json file name
+ *OUT : content of json file as a json object
+ **/
+static cJSON *parse_file(const char *filename)
+{
+    cJSON *parsed = NULL;
+    char *content = read_file(filename);
+    parsed = cJSON_Parse(content);
+
+    if (content != NULL)
+    {
+        free(content);
+    }
+
+    return parsed;
+}
+
+/* Free memory allocated for iccid */
+void freeiccid(void)
+{
+    int i = 0;
+    if (iccid != NULL)
+    {
+        for (i = 0; i < num_iccid; i++)
+        {
+            free(iccid[i]);
+        }
+        free(iccid);
+    }
+}
+
+
+int get_iccid(void)
+{
+    char configFile[] = "../config/lpa_config";
+    cJSON *value = NULL;
+    cJSON *json = NULL;
+    cJSON *item = NULL;
+    int i = 0;
+
+    UT_LOG("Checking iccid...  \n");
+    json = parse_file(configFile);
+    if (json == NULL)
+    {
+        printf("Failed to parse config\n");
+        return -1;
+    }
+    value = cJSON_GetObjectItem(json, "iccid");
+    // null check and object is Array, value->valuestring
+    if ((value != NULL) && (cJSON_IsArray(value)))
+    {
+        num_iccid = cJSON_GetArraySize(value);
+        printf("Number of iccid : %d \n", num_iccid);
+
+        // Allocate memory for iccid
+        iccid = (char **)malloc(num_iccid * sizeof(char *));
+        if (iccid == NULL)
+        {
+            printf("Memory allocation failed\n");
+            cJSON_Delete(json);
+            return -1;
+        }
+        cJSON_ArrayForEach(item, value)
+        {
+            if (i < num_iccid && cJSON_IsString(item))
+            {
+                // Allocate memory for each string and copy the content
+                iccid[i] = (char *)malloc((strlen(item->valuestring) + 1) * sizeof(char));
+                if (iccid[i] == NULL)
+                {
+                    printf("Memory allocation failed\n");
+                    freeiccid();
+                    cJSON_Delete(json);
+                    return -1;
+                }
+
+                strcpy(iccid[i], item->valuestring);
+                i++;
+            }
+        }
+    }
+    // Free cJSON object as it is no longer needed
+    cJSON_Delete(json);
+    return 0;
+}
 
 /**
 * @brief This test validates the eSIM download profile functionality
@@ -284,73 +433,86 @@ void test_l1_lpa_hal_negative3_cellular_esim_download_profile_from_defaultsmdp(v
  * **Test Procedure:**@n
  * | Variation / Step | Description | Test Data | Expected Result | Notes |
  * | :----: | --------- | ---------- |-------------- | ----- |
- * | 01 | Invoke the API cellular_esim_get_profile_info with valid inputs | profile_list = valid buffer, nb_profiles = valid buffer | RETURN_OK | should be successful |
+ * | 01 | Invoke the API cellular_esim_get_profile_info with valid inputs | profile_list = valid pointer, nb_profiles = valid buffer | RETURN_OK | should be successful |
 */
 void test_l1_lpa_hal_positive1_cellular_esim_get_profile_info(void)
 {
     UT_LOG("Entering test_l1_lpa_hal_positive1_cellular_esim_get_profile_info ...");
-    eSIMProfileStruct *profile_list = (eSIMProfileStruct*) malloc(sizeof (eSIMProfileStruct)) ;
-    if(profile_list != NULL)
-    {
-        memset(profile_list, 0, sizeof(eSIMProfileStruct));
 
-        int nb_profiles = 0;
-        UT_LOG("Invoking cellular_esim_get_profile_info with valid parameters.");
-        int result = cellular_esim_get_profile_info(&profile_list, &nb_profiles);
-        UT_LOG("cellular_esim_get_profile_info Return result: %d", result);
-        if(result == RETURN_OK)
+    int nb_profiles = 0;
+    eSIMProfileStruct *profile_list = NULL;
+       
+    UT_LOG("Invoking cellular_esim_get_profile_info with valid parameters.");
+    int result = cellular_esim_get_profile_info(&profile_list, &nb_profiles);
+    UT_LOG("cellular_esim_get_profile_info Return result: %d", result);
+    UT_ASSERT_EQUAL(result, RETURN_OK);
+    UT_LOG("checking whether the pointer \"profile_list\" is null pointer or not");
+    UT_ASSERT_PTR_NOT_NULL(profile_list);
+    if(result == RETURN_OK && nb_profiles > 0)
+    {
+        UT_LOG("cellular_esim_get_profile_info for nb_profiles :%d",nb_profiles);
+        for(int i = 0;i<nb_profiles;i++)
         {
-            UT_LOG("cellular_esim_get_profile_info for iccid :%s",profile_list->iccid);
-            UT_LOG("cellular_esim_get_profile_info for profileName :%s",profile_list->profileName);
-            UT_LOG("cellular_esim_get_profile_info for profileState :%d",profile_list->profileState);
-            UT_LOG("cellular_esim_get_profile_info for nb_profiles :%d",nb_profiles);
-            UT_ASSERT_EQUAL(result, RETURN_OK);
-            UT_LOG("cellular_esim_get_profile_info of iccid value is %s ", profile_list->iccid);
-            if(!strcmp(profile_list->profileName, "Xfinity Mobile") || !strcmp(profile_list->profileName ,"Comcast") || !strcmp(profile_list->profileName, "CRTC"))
+            UT_LOG("profile : %d iccid :%s",i+1,(profile_list+i)->iccid);
+            UT_LOG("profile : %d profileName :%s",i+1,(profile_list+i)->profileName);
+            UT_LOG("profile : %d profileState :%d",i+1,(profile_list+i)->profileState);
+            bool iccid_flag = false;
+            for(int j = 0; j<num_iccid ;j++)
             {
-                UT_LOG("cellular_esim_get_profile_info profileName value is %s which is a valid value", profile_list->profileName);
+                if(!strcmp((profile_list+i)->iccid,iccid[j]))
+                {
+                    iccid_flag = true;
+                    break;
+                }
+
+            }
+            if(iccid_flag)
+            {
+                UT_LOG("profile : %d iccid is valid : %s",i+1,(profile_list+i)->iccid);
+                UT_PASS("valid iccid");
+            }
+            else
+            {
+                UT_LOG("profile : %d iccid is invalid : %s",i+1,(profile_list+i)->iccid);
+                UT_FAIL("invalid iccid");
+            }
+            
+            if(!strcmp((profile_list+i)->profileName, "Xfinity Mobile") || !strcmp((profile_list+i)->profileName ,"Comcast") || !strcmp((profile_list+i)->profileName, "CRTC"))
+            {
+                UT_LOG("profile : %d cellular_esim_get_profile_info profileName value is %s which is a valid value",i+1,(profile_list+i)->profileName);
                 UT_PASS("cellular_esim_get_profile_info profile_list of profileName value validation success");
             }
             else
             {
-                UT_LOG("cellular_esim_get_profile_info profileName value is %s which is a invalid value", profile_list->profileName);
+                UT_LOG("profile : %d cellular_esim_get_profile_info profileName value is %s which is a invalid value",i+1,(profile_list+i)->profileName);
                 UT_FAIL("cellular_esim_get_profile_info profile_list of profileName value  validation failed");
             }
-            if((profile_list->profileState == 00) || (profile_list->profileState == 01))
+            if(((profile_list+i)->profileState == 00) || ((profile_list+i)->profileState == 01))
             {
-                UT_LOG("cellular_esim_get_profile_info profileState value is %s which is a valid value", profile_list->profileState);
+                UT_LOG("profile : %d cellular_esim_get_profile_info profileState value is %s which is a valid value",i+1,(profile_list+i)->profileState);
                 UT_PASS("cellular_esim_get_profile_info profile_list of profileName value validation success");
             }
             else
             {
-                UT_LOG("cellular_esim_get_profile_info profileState value is %s which is a invalid value", profile_list->profileState);
+                UT_LOG("profile : %d cellular_esim_get_profile_info profileState value is %s which is a invalid value",i+1,(profile_list+i)->profileState);
                 UT_FAIL("cellular_esim_get_profile_info profile_list of profileState value  validation failed");
             }
             if((nb_profiles >= 0) && (nb_profiles <= 2147483647))
             {
-                UT_LOG("cellular_esim_get_profile_info nb_profiles value is %d which is a valid value", nb_profiles);
+                UT_LOG("profile : %d cellular_esim_get_profile_info nb_profiles value is %d which is a valid value",i+1,nb_profiles);
                 UT_PASS("cellular_esim_get_profile_info nb_profiles of profileName value validation success");
             }
             else
             {
-                UT_LOG("cellular_esim_get_profile_info nb_profiles value is %d which is a invalid value", nb_profiles);
+                UT_LOG("profile : %d cellular_esim_get_profile_info nb_profiles value is %d which is a invalid value",i+1,nb_profiles);
                 UT_FAIL("cellular_esim_get_profile_info nb_profiles of profileState value  validation failed");
             }
         }
-        else
-	    {
-	    UT_LOG("cellular_esim_get_profile_info API returns:%d", result);
-	    }
-    
-        free(profile_list);
-        //profile_list=NULL;
     }
-    else
+    if(nb_profiles == 0)
     {
-        UT_LOG("Malloc operation failed");
-        UT_FAIL("Memory allocation with malloc failed");
+        UT_LOG("No profiles available");
     }
-    
     UT_LOG("Exiting test_l1_lpa_hal_positive1_cellular_esim_get_profile_info ...");
 }
 
@@ -377,7 +539,7 @@ void test_l1_lpa_hal_negative1_cellular_esim_get_profile_info(void)
 {
     UT_LOG("Entering test_l1_lpa_hal_negative1_cellular_esim_get_profile_info ...");
     int nb_profiles = 0;
-    eSIMProfileStruct *profile_list =NULL; 
+    eSIMProfileStruct **profile_list =NULL; 
     UT_LOG("Invoking cellular_esim_get_profile_info with NULL profile list parameters.");
     int result = cellular_esim_get_profile_info(&profile_list, &nb_profiles);
     UT_LOG("cellular_esim_get_profile_info Return result: %d", result);
@@ -407,11 +569,9 @@ void test_l1_lpa_hal_negative1_cellular_esim_get_profile_info(void)
 
 void test_l1_lpa_hal_negative2_cellular_esim_get_profile_info(void)
 {
-UT_LOG("Entering test_l1_lpa_hal_negative2_cellular_esim_get_profile_info ...");
-eSIMProfileStruct *profile_list = (eSIMProfileStruct*) malloc(sizeof (eSIMProfileStruct)) ;
-if(profile_list != NULL)
-{
-    memset(profile_list, 0, sizeof(eSIMProfileStruct));
+    UT_LOG("Entering test_l1_lpa_hal_negative2_cellular_esim_get_profile_info ...");
+    eSIMProfileStruct *profile_list = NULL;
+
     int *nb_profiles = NULL;
     UT_LOG("Invoking cellular_esim_get_profile_info with NULL nb_profiles parameter.");
     int result = cellular_esim_get_profile_info(&profile_list, nb_profiles);
@@ -419,12 +579,7 @@ if(profile_list != NULL)
     UT_ASSERT_EQUAL(result, RETURN_ERROR);
     free(profile_list);
     //profile_list=NULL;
-}
-else
-{
-    UT_LOG("Malloc operation failed");
-    UT_FAIL("Memory allocation with malloc failed");
-}
+
     UT_LOG("Exiting test_l1_lpa_hal_negative2_cellular_esim_get_profile_info ...");
 }
 
@@ -444,82 +599,21 @@ else
 * **Test Procedure:**@n
 * | Variation / Step | Description | Test Data |Expected Result |Notes |
 * | :----: | --------- | ---------- |-------------- | ----- |
-* | 01 | The function 'cellular_esim_enable_profile' is invoked with valid 'iccid' and 'iccid_size' | iccid = 98410800004860024951, iccid_size = 20 | RETURN_OK | Should be successful |
+* | 01 | The function 'cellular_esim_enable_profile' is invoked with valid 'iccid' and 'iccid_size' | iccid = valid, iccid_size = 20 | RETURN_OK | Should be successful |
 */
 void test_l1_lpa_hal_positive1_cellular_esim_enable_profile( void )
 {
     UT_LOG("Entering test_l1_lpa_hal_positive1_cellular_esim_enable_profile...");
-    char *iccid = "98410800004860024951";
     int iccid_size =20;
     int ret_value = 0;
-    UT_LOG("Invoking cellular_esim_enable_profile with valid iccid and iccid_size.");
-    ret_value = cellular_esim_enable_profile(iccid, iccid_size);
-    UT_LOG("cellular_esim_enable_profile Return ret_value : %d", ret_value);
-    UT_ASSERT_EQUAL(ret_value, RETURN_OK);
+    for (int i = 0;i < num_iccid; i++)
+    {
+        UT_LOG("Invoking cellular_esim_enable_profile with valid iccid : %s and iccid_size : %d.",iccid[i],iccid_size);
+        ret_value = cellular_esim_enable_profile(iccid[i], iccid_size);
+        UT_LOG("cellular_esim_enable_profile Return ret_value : %d", ret_value);
+        UT_ASSERT_EQUAL(ret_value, RETURN_OK);
+    }
     UT_LOG("Exiting test_l1_lpa_hal_positive1_cellular_esim_enable_profile...");
-}
-
-/**
-* @brief : Testing the functionality of 'cellular_esim_enable_profile' API
-*
-* This unit test is designed to evaluate the success case of the cellular_esim_enable_profile API function. @n
-* @n
-* **Test Group ID:** Basic: 01 @n
-* **Test Case ID:** 013 @n
-* **Priority:** High @n
-*  @n
-* **Pre-Conditions:** None @n
-* **Dependencies:** None @n
-* **User Interaction:** If user chose to run the test in interactive mode, then the test case has to be selected via console @n
-*  @n
-* **Test Procedure:**@n
-* | Variation / Step | Description | Test Data |Expected Result |Notes |
-* | :----: | --------- | ---------- |-------------- | ----- |
-* | 01 | The function 'cellular_esim_enable_profile' is invoked with valid 'iccid' and 'iccid_size' | iccid = 98109909002143658739, iccid_size = 20 | RETURN_OK | Should be successful |
-*/
-void test_l1_lpa_hal_positive2_cellular_esim_enable_profile( void )
-{
-    UT_LOG("Entering test_l1_lpa_hal_positive2_cellular_esim_enable_profile...");
-    char *iccid = "98109909002143658739";
-    int iccid_size = 20;
-    int ret_value = 0;
-    UT_LOG("Invoking cellular_esim_enable_profile with valid iccid and iccid_size.");
-    ret_value = cellular_esim_enable_profile(iccid, iccid_size);
-    UT_LOG("cellular_esim_enable_profile iccid_size value : %d",iccid_size);
-    UT_LOG("cellular_esim_enable_profile Return ret_value: %d", ret_value);
-    UT_ASSERT_EQUAL(ret_value, RETURN_OK);
-    UT_LOG("Exiting test_l1_lpa_hal_positive2_cellular_esim_enable_profile...");
-}
-/**
-* @brief Testing the functionality of 'cellular_esim_enable_profile' API
-*
-* This unit test is designed to evaluate the success case of the cellular_esim_enable_profile API function. @n
-* @n
-* **Test Group ID:** Basic: 01 @n
-* **Test Case ID:** 014 @n
-* **Priority:** High @n
-*  @n
-* **Pre-Conditions:** None @n
-* **Dependencies:** None @n
-* **User Interaction:** If user chose to run the test in interactive mode, then the test case has to be selected via console @n
-*  @n
-* **Test Procedure:**@n
-* | Variation / Step | Description | Test Data |Expected Result |Notes |
-* | :----: | --------- | ---------- |-------------- | ----- |
-* | 01 | The function 'cellular_esim_enable_profile' is invoked with valid 'iccid' and 'iccid_size' | iccid = 98414102915071000054, iccid_size = 20 | The function should return 'RETURN_OK', indicating success | Should be successful |
-*/
-void test_l1_lpa_hal_positive3_cellular_esim_enable_profile( void )
-{
-    UT_LOG("Entering test_l1_lpa_hal_positive3_cellular_esim_enable_profile...");
-    char *iccid = "98414102915071000054";
-    int iccid_size = 20;
-    int ret_value = 0;
-    UT_LOG("Invoking cellular_esim_enable_profile with valid iccid and iccid_size.");
-    ret_value = cellular_esim_enable_profile(iccid, iccid_size);
-    UT_LOG("cellular_esim_enable_profile iccid_size value : %d",iccid_size);
-    UT_LOG("cellular_esim_enable_profile Return ret_value: %d", ret_value);
-    UT_ASSERT_EQUAL(ret_value, RETURN_OK);
-    UT_LOG("Exiting test_l1_lpa_hal_positive3_cellular_esim_enable_profile...");
 }
 
 /**
@@ -528,7 +622,7 @@ void test_l1_lpa_hal_positive3_cellular_esim_enable_profile( void )
 * The function is designed to test the error behavior API when provided with a NULL iccid input. @n
 * @n
 * **Test Group ID:** Basic: 01 @n
-* **Test Case ID:** 015 @n
+* **Test Case ID:** 013 @n
 * **Priority:** High @n
 *  @n
 * **Pre-Conditions:** None @n
@@ -544,7 +638,7 @@ void test_l1_lpa_hal_positive3_cellular_esim_enable_profile( void )
 void test_l1_lpa_hal_negative1_cellular_esim_enable_profile( void )
 {
     UT_LOG("Entering test_l1_lpa_hal_negative1_cellular_esim_enable_profile...");
-    char *iccid = NULL;
+    char *iccid = NULL; 
     int iccid_size = 20;
     int ret_value = 0;
     UT_LOG("Invoking cellular_esim_enable_profile with NULL iccid ");
@@ -560,7 +654,7 @@ void test_l1_lpa_hal_negative1_cellular_esim_enable_profile( void )
  * This test is focused on validating the cellular_esim_enable_profile API response when iccid is Invalid. @n
  * @n
  * **Test Group ID:** Basic: 01 @n
- * **Test Case ID:** 016 @n
+ * **Test Case ID:** 014 @n
  * **Priority:** High @n
  *  @n
  * **Pre-Conditions:** None @n
@@ -578,7 +672,7 @@ void test_l1_lpa_hal_negative2_cellular_esim_enable_profile( void )
     char *iccid = "98414102915071@#0054";
     int iccid_size = 20;
     int ret_value = 0;
-    UT_LOG("Invoking cellular_esim_enable_profile with alphanumeric value");
+    UT_LOG("Invoking cellular_esim_enable_profile with alphanumeric value : %s",iccid);
     ret_value = cellular_esim_enable_profile(iccid, iccid_size);
     UT_LOG("cellular_esim_enable_profile Return ret_value: %d", ret_value);
     UT_ASSERT_EQUAL(ret_value, RETURN_ERROR);
@@ -590,7 +684,7 @@ void test_l1_lpa_hal_negative2_cellular_esim_enable_profile( void )
  * This test is focused on validating the cellular_esim_enable_profile API response when iccid is empty string. @n
  * @n
  * **Test Group ID:** Basic: 01 @n
- * **Test Case ID:** 017 @n
+ * **Test Case ID:** 015 @n
  * **Priority:** High @n
  *  @n
  * **Pre-Conditions:** None @n
@@ -620,7 +714,7 @@ void test_l1_lpa_hal_negative3_cellular_esim_enable_profile( void )
  * This test is focused on validating the cellular_esim_enable_profile API response when iccid is invalid. @n
  * @n
  * **Test Group ID:** Basic: 01 @n
- * **Test Case ID:** 018 @n
+ * **Test Case ID:** 016 @n
  * **Priority:** High @n
  *  @n
  * **Pre-Conditions:** None @n
@@ -638,7 +732,7 @@ void test_l1_lpa_hal_negative4_cellular_esim_enable_profile( void )
     char *iccid = "random";
     int iccid_size = 20;
     int ret_value = 0;
-    UT_LOG("Invoking cellular_esim_enable_profile with Invalid iccid. ");
+    UT_LOG("Invoking cellular_esim_enable_profile with Invalid iccid : %s",iccid);
     ret_value = cellular_esim_enable_profile(iccid, iccid_size);
     UT_LOG("cellular_esim_enable_profile Return ret_value: %d", ret_value);
     UT_ASSERT_EQUAL(ret_value, RETURN_ERROR);
@@ -651,7 +745,7 @@ void test_l1_lpa_hal_negative4_cellular_esim_enable_profile( void )
  * This test is used to verify whether the cellular_esim_disable_profile API behaves expectedly. @n
  * @n
  * **Test Group ID:** Basic: 01 @n
- * **Test Case ID:** 019 @n
+ * **Test Case ID:** 017 @n
  * **Priority:** High @n
  *  @n
  * **Pre-Conditions:** None @n
@@ -661,81 +755,20 @@ void test_l1_lpa_hal_negative4_cellular_esim_enable_profile( void )
  * **Test Procedure:**@n
  * | Variation / Step | Description      | Test Data     | Expected Result | Notes     |
  * | :----:            | ---------       | ----------    |--------------   | -----     |
- * | 01                | Invoke cellular_esim_disable_profile() with valid iccid and iccid_size   | iccid = 98410800004860024951, iccid_size = 20  | RETURN_OK   | Should be successful |
+ * | 01                | Invoke cellular_esim_disable_profile() with valid iccid and iccid_size   | iccid = valid, iccid_size = 20  | RETURN_OK   | Should be successful |
  */
 void test_l1_lpa_hal_positive1_cellular_esim_disable_profile(void) 
 {
     UT_LOG("Entering test_l1_lpa_hal_positive1_cellular_esim_disable_profile...");
-    char* iccid = "98410800004860024951";
     int iccid_size = 20;
-    UT_LOG("Invoking cellular_esim_disable_profile() with valid iccid and iccid_size"); 
-    int result = cellular_esim_disable_profile(iccid, iccid_size);
-    UT_LOG("cellular_esim_disable_profile iccid_size value : %d",iccid_size);   
-    UT_LOG("cellular_esim_disable_profile Return result: %d", result);
-    UT_ASSERT_EQUAL(result, RETURN_OK);
+    for (int i = 0;i < num_iccid; i++)
+    {
+        UT_LOG("Invoking cellular_esim_disable_profile() with  valid iccid: %s and iccid_size: %d",iccid[i],iccid_size); 
+        int result = cellular_esim_disable_profile(iccid[i], iccid_size);
+        UT_LOG("cellular_esim_disable_profile Return result: %d", result);
+        UT_ASSERT_EQUAL(result, RETURN_OK);
+    }
     UT_LOG("Exiting test_l1_lpa_hal_positive1_cellular_esim_disable_profile...");
-}
-
-
-/**
-* @brief Test of cellular_esim_disable_profile API with valid inputs
-*
-* This is a positive test case for the API cellular_esim_disable_profile. It tests if the API can successfully disable a profile using valid ICCID and ICCID size. @n
-* @n
-* **Test Group ID:** Basic: 01 @n
-* **Test Case ID:** 020 @n
-* **Priority:** High @n
-*  @n
-* **Pre-Conditions:** None @n
-* **Dependencies:** None @n
-* **User Interaction:** If user chose to run the test in interactive mode, then the test case has to be selected via console @n
-*  @n
-* **Test Procedure:**@n
-* | Variation / Step | Description | Test Data |Expected Result |Notes |
-* | :----: | --------- | ---------- |-------------- | ----- |
-* | 01 | Invoke cellular_esim_disable_profile with valid iccid and iccid_size | iccid = 98414102915071000054, iccid_size = 20 | RETURN_OK | Should be Successfull |
-*/
-void test_l1_lpa_hal_positive2_cellular_esim_disable_profile(void) 
-{
-    UT_LOG("Entering test_l1_lpa_hal_positive2_cellular_esim_disable_profile...");
-    char* iccid = "98414102915071000054";
-    int iccid_size = 20;
-    UT_LOG("Invoking cellular_esim_disable_profile() with valid iccid and iccid_size");
-    int result = cellular_esim_disable_profile(iccid, iccid_size);
-    UT_LOG("cellular_esim_disable_profile iccid_size value : %d",iccid_size);
-    UT_LOG("cellular_esim_disable_profile Return result: %d", result);
-    UT_ASSERT_EQUAL(result, RETURN_OK);
-    UT_LOG("Exiting test_l1_lpa_hal_positive2_cellular_esim_disable_profile...");
-}
-/**
-* @brief Test of cellular_esim_disable_profile API with valid inputs
-*
-* This is a positive test case for the API cellular_esim_disable_profile. It tests if the API can successfully disable a profile using valid ICCID and ICCID size.  @n
-* @n
-* **Test Group ID:** Basic: 01 @n
-* **Test Case ID:** 021 @n
-* **Priority:** High @n
-*  @n
-* **Pre-Conditions:** None @n
-* **Dependencies:** None @n
-* **User Interaction:** If user chose to run the test in interactive mode, then the test case has to be selected via console@n
-*  @n
-* **Test Procedure:**@n
-* | Variation / Step | Description | Test Data |Expected Result |Notes |
-* | :----: | --------- | ---------- |-------------- | ----- |
-* | 01 | Invoke cellular_esim_disable_profile with valid iccid and iccid_size | iccid = 98414102915071000054, iccid_size = 20 | RETURN_OK | Should be Successful |
-*/
-void test_l1_lpa_hal_positive3_cellular_esim_disable_profile(void) 
-{
-    UT_LOG("Entering test_l1_lpa_hal_positive3_cellular_esim_disable_profile...");
-    char* iccid = "98109909002143658739";
-    int iccid_size = 20;
-    UT_LOG("Invoking cellular_esim_disable_profile() with valid iccid and iccid_size");
-    int result = cellular_esim_disable_profile(iccid, iccid_size);
-    UT_LOG("cellular_esim_disable_profile Return result: %d", result);
-    UT_LOG("cellular_esim_disable_profile iccid_size value : %d",iccid_size);
-    UT_ASSERT_EQUAL(result, RETURN_OK);
-    UT_LOG("Exiting test_l1_lpa_hal_positive3_cellular_esim_disable_profile...");
 }
 
 /**
@@ -744,7 +777,7 @@ void test_l1_lpa_hal_positive3_cellular_esim_disable_profile(void)
 * This test stimulates the scenario where the function cellular_esim_disable_profile is invoked with NULL iccid and an integer size of 20.  @n
 * @n
 * **Test Group ID:** Basic: 01 @n
-* **Test Case ID:** 022 @n
+* **Test Case ID:** 018 @n
 * **Priority:** High @n
 *  @n
 * **Pre-Conditions:** None @n
@@ -760,7 +793,7 @@ void test_l1_lpa_hal_positive3_cellular_esim_disable_profile(void)
 void test_l1_lpa_hal_negative1_cellular_esim_disable_profile(void) 
 {
     UT_LOG("Entering test_l1_lpa_hal_negative1_cellular_esim_disable_profile...");
-    char* iccid = NULL;
+    char *iccid = NULL;
     int iccid_size = 20;
     UT_LOG("Invoking cellular_esim_disable_profile() with NULL iccid ");
     int result = cellular_esim_disable_profile(iccid, iccid_size);
@@ -775,7 +808,7 @@ void test_l1_lpa_hal_negative1_cellular_esim_disable_profile(void)
 * In this test, the function cellular_esim_disable_profile() is invoked with a iccid that includes alphanumeric or special characters and a iccid_size equals to 20. @n
 * @n
 * **Test Group ID:** Basic: 01 @n
-* **Test Case ID:** 023 @n
+* **Test Case ID:** 019 @n
 * **Priority:** High @n
 * @n
 * **Pre-Conditions:** None @n
@@ -792,7 +825,7 @@ void test_l1_lpa_hal_negative2_cellular_esim_disable_profile(void)
     UT_LOG("Entering test_l1_lpa_hal_negative2_cellular_esim_disable_profile...");
     char *iccid = "98410A00@04860024951";
     int iccid_size = 20;
-    UT_LOG("Invoking cellular_esim_disable_profile() with iccid contains alphanumeric or special characters");
+    UT_LOG("Invoking cellular_esim_disable_profile() with iccid contains alphanumeric or special characters : %s",iccid);
     int result = cellular_esim_disable_profile(iccid, iccid_size);
     UT_LOG("cellular_esim_disable_profile Return result: %d", result);
     UT_ASSERT_EQUAL(result, RETURN_ERROR);
@@ -805,7 +838,7 @@ void test_l1_lpa_hal_negative2_cellular_esim_disable_profile(void)
  * In this test, the API cellular_esim_disable_profile is invoked with invalid ICCID and ICCID size equal to 20. @n
  * @n
  * **Test Group ID:** Basic: 01 @n
- * **Test Case ID:** 024 @n
+ * **Test Case ID:** 020 @n
  * **Priority:** High @n
  * @n
  * **Pre-Conditions:** None @n
@@ -822,7 +855,7 @@ void test_l1_lpa_hal_negative3_cellular_esim_disable_profile(void)
     UT_LOG("Entering test_l1_lpa_hal_negative3_cellular_esim_disable_profile...");
     char *iccid = "984141";
     int iccid_size = 20;
-    UT_LOG("Invoking cellular_esim_disable_profile() with Invalid iccid string ");
+    UT_LOG("Invoking cellular_esim_disable_profile() with Invalid iccid string: %s",iccid);
     int result = cellular_esim_disable_profile(iccid, iccid_size);
     UT_LOG("cellular_esim_disable_profile Return result: %d", result);
     UT_ASSERT_EQUAL(result, RETURN_ERROR);
@@ -835,7 +868,7 @@ void test_l1_lpa_hal_negative3_cellular_esim_disable_profile(void)
 * This test validates the cellular_esim_disable_profile() function by testing if it can handle Empty string iccid and valid iccid_size . @n
 * @n
 * **Test Group ID:** Basic: 01 @n
-* **Test Case ID:** 025 @n
+* **Test Case ID:** 021 @n
 * **Priority:** High @n
 * @n
 * **Pre-Conditions:** None @n
@@ -866,7 +899,7 @@ void test_l1_lpa_hal_negative4_cellular_esim_disable_profile(void)
 * This test case validates the eSIM profile deletion on a cellular device. @n
 * @n
 * **Test Group ID:** Basic: 01 @n
-* **Test Case ID:** 026 @n
+* **Test Case ID:** 022 @n
 * **Priority:** High @n
 * @n
 * **Pre-Conditions:** None @n
@@ -876,80 +909,20 @@ void test_l1_lpa_hal_negative4_cellular_esim_disable_profile(void)
 * **Test Procedure:**@n
 * | Variation / Step | Description | Test Data |Expected Result |Notes |
 * | :----: | --------- | ---------- |-------------- | ----- |
-* | 01 | Invoking API cellular_esim_delete_profile with valid iccid value and iccid_size | iccid = 98410800004860024951, iccid_size = 20 | RETURN_OK | should be successful |
+* | 01 | Invoking API cellular_esim_delete_profile with valid iccid value and iccid_size | iccid = valid, iccid_size = 20 | RETURN_OK | should be successful |
 */
 void test_l1_lpa_hal_positive1_cellular_esim_delete_profile(void) 
 {
     UT_LOG("Entering test_l1_lpa_hal_positive1_cellular_esim_delete_profile...");
-    char *iccid = "98410800004860024951";
     int iccid_size = 20;
-    UT_LOG("Invoking cellular_esim_delete_profile with a valid ICCID ");
-    int status = cellular_esim_delete_profile(iccid, iccid_size);
-    UT_LOG("cellular_esim_delete_profile Return status: %d", status);
-    UT_LOG("cellular_esim_delete_profile iccid_size value : %d",iccid_size);
-    UT_ASSERT_EQUAL(status, RETURN_OK);
+    for (int i = 0;i < num_iccid; i++)
+    {
+        UT_LOG("Invoking cellular_esim_delete_profile with a valid ICCID : %s and iccid_size : %d",iccid[i],iccid_size);
+        int status = cellular_esim_delete_profile(iccid[i], iccid_size);
+        UT_LOG("cellular_esim_delete_profile Return status: %d", status);
+        UT_ASSERT_EQUAL(status, RETURN_OK);
+    }
     UT_LOG("Exiting test_l1_lpa_hal_positive1_cellular_esim_delete_profile...");
-}
-
-/**
- * @brief Test for deletion of profiles in eSIM
- *
- * This unit test validates the cellular_esim_delete_profile API.  @n
- * @n
- * **Test Group ID:** Basic: 01 @n
- * **Test Case ID:** 027 @n
- * **Priority:** High @n
- *  @n
- * **Pre-Conditions:** None @n
- * **Dependencies:** None @n
- * **User Interaction:** If user chose to run the test in interactive mode, then the test case has to be selected via console. @n
- * @n
- * **Test Procedure:**@n
- * | Variation / Step | Description | Test Data |Expected Result |Notes |
- * | :----: | --------- | ---------- |-------------- | ----- |
- * | 01 |  Invoking cellular_esim_delete_profile with valid iccid and iccid_size | iccid = 98109909002143658739, iccid_size = 20 | RETURN_OK | Should be successful |
- */
-void test_l1_lpa_hal_positive2_cellular_esim_delete_profile(void) 
-{
-    UT_LOG("Entering test_l1_lpa_hal_positive2_cellular_esim_delete_profile...");
-    char *iccid = "98109909002143658739";
-    int iccid_size = 20;
-    UT_LOG("Invoking cellular_esim_delete_profile with valid ICCIDs.");
-    int status = cellular_esim_delete_profile(iccid, iccid_size);
-    UT_LOG(" cellular_esim_delete_profile Return status: %d", status);
-    UT_LOG("cellular_esim_delete_profile iccid_size value : %d",iccid_size);
-    UT_ASSERT_EQUAL(status, RETURN_OK);
-    UT_LOG("Exiting test_l1_lpa_hal_positive2_cellular_esim_delete_profile...");
-}
-/**
- * @brief Test for deletion of profiles in eSIM
- *
- * This unit test validates the cellular_esim_delete_profile API. The objective is to verify that this API can delete existing eSIM profiles as expected. @n
- * @n
- * **Test Group ID:** Basic: 01 @n
- * **Test Case ID:** 028 @n
- * **Priority:** High @n
- *  @n
- * **Pre-Conditions:** None @n
- * **Dependencies:** None @n 
- * **User Interaction:** If user chose to run the test in interactive mode, then the test case has to be selected via console. @n
- * @n
- * **Test Procedure:**@n
- * | Variation / Step | Description | Test Data |Expected Result |Notes |
- * | :----: | --------- | ---------- |-------------- | ----- |
- * | 01 | Invoking cellular_esim_delete_profile with valid iccid and iccid_size | iccid1 = 98414102915071000054, iccid_size = 20 | RETURN_OK | Should be successful |
- */
-void test_l1_lpa_hal_positive3_cellular_esim_delete_profile(void) 
-{
-    UT_LOG("Entering test_l1_lpa_hal_positive3_cellular_esim_delete_profile...");
-    char *iccid = "98414102915071000054";
-    int iccid_size = 20;
-    UT_LOG("Invoking cellular_esim_delete_profile with valid ICCIDs  ");
-    int status = cellular_esim_delete_profile(iccid, iccid_size);
-    UT_LOG("cellular_esim_delete_profile Return status: %d", status);
-    UT_LOG("cellular_esim_delete_profile iccid_size value : %d",iccid_size);
-    UT_ASSERT_EQUAL(status, RETURN_OK);
-    UT_LOG("Exiting test_l1_lpa_hal_positive3_cellular_esim_delete_profile...");
 }
 
 /**
@@ -958,7 +931,7 @@ void test_l1_lpa_hal_positive3_cellular_esim_delete_profile(void)
  * This test checks whether the cellular_esim_delete_profile function is able to handle NULL ICCID argument, which is an invalid input. @n 
  * @n
  * **Test Group ID:** Basic: 01 @n
- * **Test Case ID:** 029 @n
+ * **Test Case ID:** 023 @n
  * **Priority:** High @n
  * @n
  * **Pre-Conditions:** None @n
@@ -988,7 +961,7 @@ void test_l1_lpa_hal_negative1_cellular_esim_delete_profile(void)
  * This test checks whether the cellular_esim_delete_profile function is able to handle invalid ICCID argument input.  @n
  * @n
  * **Test Group ID:** Basic: 01 @n
- * **Test Case ID:** 030 @n
+ * **Test Case ID:** 024 @n
  * **Priority:** High @n
  *  @n
  * **Pre-Conditions:** None @n
@@ -1005,7 +978,7 @@ void test_l1_lpa_hal_negative2_cellular_esim_delete_profile(void)
     UT_LOG("Entering test_l1_lpa_hal_negative2_cellular_esim_delete_profile...");
     char *iccid = "98109909002@43658739";
     int iccid_size = 20;
-    UT_LOG("Invoking cellular_esim_delete_profile with Invalid ICCID");
+    UT_LOG("Invoking cellular_esim_delete_profile with Invalid ICCID : %s",iccid);
     int status = cellular_esim_delete_profile(iccid, iccid_size);
     UT_LOG("cellular_esim_delete_profile Return status: %d", status);
     UT_ASSERT_EQUAL(status, RETURN_ERROR);
@@ -1017,7 +990,7 @@ void test_l1_lpa_hal_negative2_cellular_esim_delete_profile(void)
  * This test checks whether the cellular_esim_delete_profile function is able to handle ICCID argument, which is an invalid input.  @n
  * @n
  * **Test Group ID:** Basic: 01 @n
- * **Test Case ID:** 031 @n
+ * **Test Case ID:** 025 @n
  * **Priority:** High @n
  *  @n
  * **Pre-Conditions:** None @n
@@ -1046,7 +1019,7 @@ void test_l1_lpa_hal_negative3_cellular_esim_delete_profile(void)
  * This test checks whether the cellular_esim_delete_profile function is able to handle ICCID argument, which is an invalid input.  @n
  * @n
  * **Test Group ID:** Basic: 01 @n
- * **Test Case ID:** 032 @n
+ * **Test Case ID:** 026 @n
  * **Priority:** High @n
  *  @n
  * **Pre-Conditions:** None @n
@@ -1063,7 +1036,7 @@ void test_l1_lpa_hal_negative4_cellular_esim_delete_profile(void)
     UT_LOG("Entering test_l1_lpa_hal_negative4_cellular_esim_delete_profile...");
     char *iccid = "random";
     int iccid_size = 20;
-    UT_LOG("Invoking cellular_esim_delete_profile with Invalid ICCID ");
+    UT_LOG("Invoking cellular_esim_delete_profile with Invalid ICCID : %s",iccid);
     int status = cellular_esim_delete_profile(iccid, iccid_size);
     UT_LOG("cellular_esim_delete_profile Return status: %d", status);
     UT_ASSERT_EQUAL(status, RETURN_ERROR);
@@ -1076,7 +1049,7 @@ void test_l1_lpa_hal_negative4_cellular_esim_delete_profile(void)
 * This test checks the operation of the cellular_esim_lpa_init function when provided with valid inputs. @n
 * @n
 * **Test Group ID:** Basic: 01 @n
-* **Test Case ID:** 033 @n
+* **Test Case ID:** 027 @n
 * **Priority:** High @n
 *  @n
 * **Pre-Conditions:** None @n
@@ -1112,7 +1085,7 @@ void test_l1_lpa_hal_positive1_cellular_esim_lpa_init(void)
 * This test verifies the successful operation of the cellular_esim_lpa_exit function under normal operation. @n
 * @n
 * **Test Group ID:** Basic: 01 @n
-* **Test Case ID:** 034 @n
+* **Test Case ID:** 028 @n
 * **Priority:** High @n
 *  @n
 * **Pre-Conditions:** None @n
@@ -1147,7 +1120,7 @@ void test_l1_lpa_hal_positive1_cellular_esim_exit(void)
 * This unit test checks whether the cellular_esim_get_eid function retrieves the Embedded Identifier (EID) successfully for a cellular eSIM.
 * @n
 * **Test Group ID:** Basic: 01 @n
-* **Test Case ID:** 035 @n
+* **Test Case ID:** 029 @n
 * **Priority:** High @n
 * @n
 * **Pre-Conditions:** None @n
@@ -1179,7 +1152,7 @@ void test_l1_lpa_hal_positive1_cellular_esim_get_eid(void)
 * This function tests the cellular_esim_get_euicc API in the L1 Layer . @n 
 * @n
 * **Test Group ID:** Basic: 01 @n
-* **Test Case ID:** 036 @n
+* **Test Case ID:** 030 @n
 * **Priority:** High @n
 * @n
 * **Pre-Conditions:** None @n
@@ -1259,22 +1232,16 @@ int test_lpa_hal_l1_register(void)
     UT_add_test( pSuite, "l1_lpa_hal_negative1_cellular_esim_get_profile_info", test_l1_lpa_hal_negative1_cellular_esim_get_profile_info);
     UT_add_test( pSuite, "l1_lpa_hal_negative2_cellular_esim_get_profile_info", test_l1_lpa_hal_negative2_cellular_esim_get_profile_info);
     UT_add_test( pSuite, "l1_lpa_hal_positive1_cellular_esim_enable_profile", test_l1_lpa_hal_positive1_cellular_esim_enable_profile);
-    UT_add_test( pSuite, "l1_lpa_hal_positive2_cellular_esim_enable_profile", test_l1_lpa_hal_positive2_cellular_esim_enable_profile);
-    UT_add_test( pSuite, "l1_lpa_hal_positive3_cellular_esim_enable_profile", test_l1_lpa_hal_positive3_cellular_esim_enable_profile);
     UT_add_test( pSuite, "l1_lpa_hal_negative1_cellular_esim_enable_profile", test_l1_lpa_hal_negative1_cellular_esim_enable_profile);
     UT_add_test( pSuite, "l1_lpa_hal_negative2_cellular_esim_enable_profile", test_l1_lpa_hal_negative2_cellular_esim_enable_profile);
     UT_add_test( pSuite, "l1_lpa_hal_negative3_cellular_esim_enable_profile", test_l1_lpa_hal_negative3_cellular_esim_enable_profile);
     UT_add_test( pSuite, "l1_lpa_hal_negative4_cellular_esim_enable_profile", test_l1_lpa_hal_negative4_cellular_esim_enable_profile);
     UT_add_test( pSuite, "l1_lpa_hal_positive1_cellular_esim_disable_profile", test_l1_lpa_hal_positive1_cellular_esim_disable_profile);
-    UT_add_test( pSuite, "l1_lpa_hal_positive2_cellular_esim_disable_profile", test_l1_lpa_hal_positive2_cellular_esim_disable_profile);
-    UT_add_test( pSuite, "l1_lpa_hal_positive3_cellular_esim_disable_profile", test_l1_lpa_hal_positive3_cellular_esim_disable_profile);
     UT_add_test( pSuite, "l1_lpa_hal_negative1_cellular_esim_disable_profile", test_l1_lpa_hal_negative1_cellular_esim_disable_profile);
     UT_add_test( pSuite, "l1_lpa_hal_negative2_cellular_esim_disable_profile", test_l1_lpa_hal_negative2_cellular_esim_disable_profile);
     UT_add_test( pSuite, "l1_lpa_hal_negative3_cellular_esim_disable_profile", test_l1_lpa_hal_negative3_cellular_esim_disable_profile);
     UT_add_test( pSuite, "l1_lpa_hal_negative4_cellular_esim_disable_profile", test_l1_lpa_hal_negative4_cellular_esim_disable_profile);
     UT_add_test( pSuite, "l1_lpa_hal_positive1_cellular_esim_delete_profile", test_l1_lpa_hal_positive1_cellular_esim_delete_profile);
-    UT_add_test( pSuite, "l1_lpa_hal_positive2_cellular_esim_delete_profile", test_l1_lpa_hal_positive2_cellular_esim_delete_profile);
-    UT_add_test( pSuite, "l1_lpa_hal_positive3_cellular_esim_delete_profile", test_l1_lpa_hal_positive3_cellular_esim_delete_profile);
     UT_add_test( pSuite, "l1_lpa_hal_negative1_cellular_esim_delete_profile", test_l1_lpa_hal_negative1_cellular_esim_delete_profile);
     UT_add_test( pSuite, "l1_lpa_hal_negative2_cellular_esim_delete_profile", test_l1_lpa_hal_negative2_cellular_esim_delete_profile);
     UT_add_test( pSuite, "l1_lpa_hal_negative3_cellular_esim_delete_profile", test_l1_lpa_hal_negative3_cellular_esim_delete_profile);

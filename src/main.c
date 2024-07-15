@@ -18,12 +18,31 @@
 #include <ut.h>
 #include <ut_log.h>
 #include <stdlib.h>
+#include "lpa_hal.h"
 
+extern int get_iccid(void);
 extern int register_hal_l1_tests( void );
+extern void freeiccid(void);
+
+extern int num_iccid;
+extern char** iccid;
 
 int main(int argc, char** argv)
 {
     int registerReturn = 0;
+
+    if(get_iccid() == 0)
+    {
+        UT_LOG("Got the iccid values :\n");
+        for (int i = 0;i < num_iccid; i++)
+        {
+            UT_LOG("iccid[%d] : %s \n", i+1,iccid[i]);
+        }
+    }
+    else
+    {
+        UT_LOG("Failed to get iccid value\n");
+    }
     /* Register tests as required, then call the UT-main to support switches and triggering */
     UT_init( argc, argv );
     /* Check if tests are registered successfully */
@@ -39,5 +58,8 @@ int main(int argc, char** argv)
     }
     /* Begin test executions */
     UT_run_tests();
+
+    freeiccid();
+
     return 0;
 }
