@@ -28,7 +28,7 @@ This repository contains the Unit Test Suites L1 for LPA HAL.
 
 |SNo|Document Name|Document Description|Document Link|
 |---|-------------|--------------------|-------------|
-|1|`HAL` Specification Document|This document provides specific information on the APIs for which tests are written in this module|[LpaHalSpec.md](../../../../rdkcentral/rdkb-halif-lpa/blob/main/docs/pages/LpaHalSpec.md "LpaHalSpec.md")|
+|1|`HAL` Specification Document|This document provides specific information on the APIs for which tests are written in this module|[LpaHalSpec.md](../../../../../rdkcentral/rdkb-halif-lpa/blob/main/docs/pages/LpaHalSpec.md "LpaHalSpec.md")|
 |2|`L1` Tests | `L1` Test Case File for this module |[test_l1_lpa_hal.c](src/test_l1_lpa_hal.c "test_l1_lpa_hal.c")|
 
 
